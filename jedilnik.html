@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jedilnik">
+<title>14-dnevni Jedilnik</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: linear-gradient(160deg,#0a1628 0%,#0d2535 55%,#0a1f18 100%);
+    font-family: Georgia, serif;
+    color: #eceff1;
+    min-height: 100vh;
+    padding: 18px 14px 40px;
+  }
+  .container { max-width: 640px; margin: 0 auto; }
+  .header { text-align: center; margin-bottom: 20px; }
+  .header .sub { font-size: 11px; letter-spacing: 4px; color: #4db6ac; text-transform: uppercase; margin-bottom: 5px; }
+  .header h1 { font-size: 24px; font-weight: bold; color: #e0f7fa; }
+  .header .note { font-size: 12px; color: #546e7a; margin-top: 4px; }
+
+  .week-tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; }
+  .week-btn {
+    padding: 8px 28px; border-radius: 20px; border: none; cursor: pointer;
+    background: rgba(255,255,255,0.08); color: #80cbc4;
+    font-family: Georgia,serif; font-size: 13px; transition: all 0.2s;
+  }
+  .week-btn.active { background: #00838f; color: #fff; font-weight: bold; }
+
+  .day-tabs { display: flex; gap: 5px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
+  .day-btn {
+    flex: 0 0 auto; padding: 6px 10px; border-radius: 16px; border: none; cursor: pointer;
+    font-size: 11px; font-family: Georgia,serif;
+    background: rgba(255,255,255,0.08); color: #78909c; transition: all 0.18s;
+  }
+  .day-btn.active-t { background: #0277bd; color: #fff; font-weight: bold; }
+  .day-btn.active-r { background: #2e7d32; color: #fff; font-weight: bold; }
+
+  .stats {
+    display: flex; gap: 6px; margin-bottom: 14px;
+    background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px 12px;
+  }
+  .stat { flex: 1; text-align: center; }
+  .stat .val { font-size: 15px; font-weight: bold; }
+  .stat .lbl { font-size: 10px; color: #455a64; margin-top: 1px; }
+
+  .trening-bar {
+    background: rgba(2,119,189,0.12); border: 1px solid rgba(2,119,189,0.25);
+    border-radius: 10px; padding: 8px 14px; font-size: 12px; color: #81d4fa; margin-bottom: 12px;
+  }
+
+  .ocard {
+    background: rgba(255,255,255,0.06); border-radius: 16px;
+    margin-bottom: 12px; overflow: hidden;
+  }
+  .ocard-head { padding: 14px 16px; cursor: pointer; user-select: none; }
+  .ocard-head .row1 { display: flex; justify-content: space-between; align-items: flex-start; }
+  .ocard-head .label { font-size: 11px; letter-spacing: 1px; margin-bottom: 2px; }
+  .ocard-head .preview { font-size: 13px; color: #cfd8dc; }
+  .ocard-head .kcal { font-size: 15px; font-weight: bold; color: #ce93d8; }
+  .ocard-head .prot { font-size: 12px; margin-top: 2px; }
+  .macros { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .mc { font-size: 12px; background: rgba(255,255,255,0.07); border-radius: 8px; padding: 2px 8px; }
+  .toggle-hint { font-size: 11px; color: #37474f; margin-left: 4px; }
+
+  .ocard-body { background: rgba(0,0,0,0.25); padding: 0 16px 14px; display: none; }
+  .ocard-body.open { display: block; }
+  .ocard-body .divider { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px; }
+  .srow {
+    display: flex; justify-content: space-between; padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px;
+  }
+  .srow:last-child { border-bottom: none; }
+  .srow .name { color: #90caf9; }
+  .srow .grams { color: #455a64; margin-left: 6px; }
+  .srow .nums { color: #607d8b; text-align: right; }
+  .srow .pv { color: #a5d6a7; }
+  .srow .kv { color: #ce93d8; }
+
+  .additives {
+    background: rgba(255,193,7,0.07); border: 1px solid rgba(255,193,7,0.18);
+    border-radius: 12px; padding: 12px 14px; margin-top: 4px;
+  }
+  .additives .albl { font-size: 11px; color: #ffe082; letter-spacing: 1px; margin-bottom: 7px; }
+  .additives p { font-size: 12px; color: #fff8e1; line-height: 1.9; }
+
+  .warning {
+    background: rgba(239,83,80,0.07); border: 1px solid rgba(239,83,80,0.18);
+    border-radius: 12px; padding: 10px 14px; margin-top: 8px;
+    font-size: 12px; color: #ef9a9a;
+  }
+  .footer { text-align: center; margin-top: 14px; font-size: 10px; color: #1c313a; }
+
+  .c-green { color: #a5d6a7; }
+  .c-yellow { color: #fff176; }
+  .c-red { color: #ef9a9a; }
+  .c-orange { color: #ffcc80; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="sub">2 obroka · 200g+ beljakovin · Low-carb</div>
+    <h1>14-dnevni jedilnik</h1>
+    <div class="note">Makri iz dejanskih etiket · Brez predelane hrane</div>
+  </div>
+
+  <div class="week-tabs">
+    <button class="week-btn active" onclick="switchWeek(1)">Teden 1</button>
+    <button class="week-btn" onclick="switchWeek(2)">Teden 2</button>
+  </div>
+
+  <div class="day-tabs" id="dayTabs"></div>
+
+  <div class="stats" id="stats"></div>
+  <div id="treningBar"></div>
+
+  <div id="o1"></div>
+  <div id="o2"></div>
+
+  <div class="additives">
+    <div class="albl">💊 DNEVNI DODATKI</div>
+    <p><b>Psyllium</b> – 1 žlica v 300ml vode, 30 min pred 1. obrokom<br>
+    <b>Omega 3 olje</b> – 1 žlica z 1. obrokom<br>
+    <b>Whey 50g</b> – 1 merica + pol, raztopiti v vodi ali v jogurtu</p>
+  </div>
+
+  <div class="warning">⚠️ <b>Pršut</b> vsebuje 3.7g soli/100g – max 3× tedensko, kot v jedilniku</div>
+  <div class="footer">Tapni obrok za gramature · Makri iz dejanskih etiket</div>
+</div>
+
+<script>
+const DAYS = [
+  { day:"Ponedeljek",week:1,trening:true,
+    o1:{ cas:"9:30 – po treningu", tp:127, toh:25, tm:65, tk:1170,
+      s:[{i:"Losos svež",g:200,p:40.0,oh:0.0,m:26.0,k:380},{i:"Jajca (3×60g)",g:180,p:23.4,oh:1.3,m:19.8,k:279},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Brokoli",g:200,p:5.6,oh:14.0,m:0.8,k:68},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    o2:{ cas:"14:00–16:00", tp:106, toh:14, tm:54, tk:958,
+      s:[{i:"Piščančje bedre b/k",g:320,p:80.0,oh:0.0,m:25.6,k:544},{i:"Pršut",g:80,p:24.0,oh:0.0,m:12.0,k:206},{i:"Paprika",g:200,p:2.0,oh:12.0,m:0.6,k:62},{i:"Olive",g:50,p:0.4,oh:1.9,m:5.3,k:58},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    dp:234,doh:39,dm:119,dk:2128},
+  { day:"Torek",week:1,trening:true,
+    o1:{ cas:"9:30 – po treningu", tp:152, toh:16, tm:42, tk:1051,
+      s:[{i:"Tuna v lastnem soku (2 konz.)",g:260,p:67.6,oh:0.0,m:2.6,k:302},{i:"Jajca (3×60g)",g:180,p:23.4,oh:1.3,m:19.8,k:279},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Rukola",g:80,p:2.1,oh:3.0,m:0.6,k:20},{i:"Kapre",g:30,p:0.7,oh:1.5,m:0.3,k:7},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    o2:{ cas:"14:00–16:00", tp:120, toh:15, tm:30, tk:826,
+      s:[{i:"Piščančje prsi",g:280,p:86.8,oh:0.0,m:10.1,k:462},{i:"Orada file",g:150,p:30.0,oh:0.0,m:4.5,k:158},{i:"Paprika",g:150,p:1.5,oh:9.0,m:0.4,k:46},{i:"Paradižnik",g:150,p:1.4,oh:5.8,m:0.3,k:27},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    dp:272,doh:31,dm:72,dk:1877},
+  { day:"Sreda",week:1,trening:false,
+    o1:{ cas:"10:00–11:00", tp:131, toh:14, tm:44, tk:985,
+      s:[{i:"Brancin file",g:250,p:47.5,oh:0.0,m:10.0,k:288},{i:"Jajca (3×60g)",g:180,p:23.4,oh:1.3,m:19.8,k:279},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Rukola",g:80,p:2.1,oh:3.0,m:0.6,k:20},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    o2:{ cas:"15:00–17:00", tp:85, toh:50, tm:43, tk:899,
+      s:[{i:"Goveje polpete puste (7%)",g:380,p:76.0,oh:0.0,m:26.6,k:543},{i:"Sladki krompir kuhan",g:180,p:3.6,oh:36.0,m:0.2,k:155},{i:"Brokoli",g:200,p:5.6,oh:14.0,m:0.8,k:68},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    dp:216,doh:64,dm:87,dk:1884},
+  { day:"Četrtek",week:1,trening:true,
+    o1:{ cas:"9:30 – po treningu", tp:144, toh:22, tm:53, tk:1164,
+      s:[{i:"Postrv",g:250,p:50.0,oh:0.0,m:7.5,k:298},{i:"Jajca (4×60g)",g:240,p:31.2,oh:1.7,m:26.4,k:372},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Brokoli",g:150,p:4.2,oh:10.5,m:0.6,k:51},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    o2:{ cas:"14:00–16:00", tp:101, toh:18, tm:51, tk:920,
+      s:[{i:"Piščančje bedre b/k",g:320,p:80.0,oh:0.0,m:25.6,k:544},{i:"Pršut",g:60,p:18.0,oh:0.0,m:9.0,k:154},{i:"Paprika",g:200,p:2.0,oh:12.0,m:0.6,k:62},{i:"Paradižnik",g:150,p:1.4,oh:5.8,m:0.3,k:27},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    dp:245,doh:40,dm:104,dk:2084},
+  { day:"Petek",week:1,trening:true,
+    o1:{ cas:"9:30 – po treningu", tp:123, toh:13, tm:65, tk:1118,
+      s:[{i:"Losos svež",g:200,p:40.0,oh:0.0,m:26.0,k:380},{i:"Jajca (3×60g)",g:180,p:23.4,oh:1.3,m:19.8,k:279},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Mešana solata",g:80,p:1.2,oh:2.0,m:0.2,k:16},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    o2:{ cas:"14:00–16:00", tp:109, toh:33, tm:40, tk:946,
+      s:[{i:"Sardele sveže/konz.",g:200,p:42.0,oh:0.0,m:22.0,k:370},{i:"Piščančje prsi",g:200,p:62.0,oh:0.0,m:7.2,k:330},{i:"Krompir kuhan",g:150,p:3.0,oh:25.5,m:0.2,k:116},{i:"Zelenjava (por, korenje)",g:150,p:2.2,oh:7.5,m:0.3,k:42},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    dp:232,doh:46,dm:104,dk:2064},
+  { day:"Sobota",week:1,trening:false,
+    o1:{ cas:"10:00–11:00", tp:143, toh:17, tm:43, tk:1019,
+      s:[{i:"Orada file",g:300,p:60.0,oh:0.0,m:9.0,k:315},{i:"Jajca (3×60g)",g:180,p:23.4,oh:1.3,m:19.8,k:279},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Paradižnik",g:150,p:1.4,oh:5.8,m:0.3,k:27},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    o2:{ cas:"15:00–17:00", tp:108, toh:42, tm:41, tk:956,
+      s:[{i:"Goveja pečenka",g:300,p:84.0,oh:0.0,m:21.0,k:525},{i:"Pršut",g:60,p:18.0,oh:0.0,m:9.0,k:154},{i:"Sladki krompir kuhan",g:180,p:3.6,oh:36.0,m:0.2,k:155},{i:"Bučke",g:200,p:2.4,oh:6.2,m:0.6,k:34},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    dp:251,doh:59,dm:84,dk:1975},
+  { day:"Nedelja",week:1,trening:false,
+    o1:{ cas:"10:00–11:00", tp:142, toh:16, tm:47, tk:1049,
+      s:[{i:"Brancin file",g:300,p:57.0,oh:0.0,m:12.0,k:345},{i:"Jajca (3×60g)",g:180,p:23.4,oh:1.3,m:19.8,k:279},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Rukola",g:80,p:2.1,oh:3.0,m:0.6,k:20},{i:"Kapre",g:30,p:0.7,oh:1.5,m:0.3,k:7},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    o2:{ cas:"15:00–17:00", tp:90, toh:35, tm:65, tk:1076,
+      s:[{i:"Goveje polpete mastne (20%)",g:200,p:40.0,oh:0.0,m:40.0,k:520},{i:"Piščančje bedre b/k",g:180,p:45.0,oh:0.0,m:14.4,k:306},{i:"Krompir kuhan",g:150,p:3.0,oh:25.5,m:0.2,k:116},{i:"Paprika",g:150,p:1.5,oh:9.0,m:0.4,k:46},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    dp:231,doh:50,dm:112,dk:2125},
+  { day:"Ponedeljek",week:2,trening:true,
+    o1:{ cas:"9:30 – po treningu", tp:147, toh:25, tm:48, tk:1105,
+      s:[{i:"Orada file",g:300,p:60.0,oh:0.0,m:9.0,k:315},{i:"Jajca (3×60g)",g:180,p:23.4,oh:1.3,m:19.8,k:279},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Brokoli",g:200,p:5.6,oh:14.0,m:0.8,k:68},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    o2:{ cas:"14:00–16:00", tp:102, toh:18, tm:52, tk:938,
+      s:[{i:"Piščančje bedre b/k",g:300,p:75.0,oh:0.0,m:24.0,k:510},{i:"Pršut",g:80,p:24.0,oh:0.0,m:12.0,k:206},{i:"Paprika",g:200,p:2.0,oh:12.0,m:0.6,k:62},{i:"Paradižnik",g:150,p:1.4,oh:5.8,m:0.3,k:27},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    dp:250,doh:43,dm:100,dk:2043},
+  { day:"Torek",week:2,trening:true,
+    o1:{ cas:"9:30 – po treningu", tp:123, toh:13, tm:65, tk:1118,
+      s:[{i:"Losos svež",g:200,p:40.0,oh:0.0,m:26.0,k:380},{i:"Jajca (3×60g)",g:180,p:23.4,oh:1.3,m:19.8,k:279},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Mešana solata",g:80,p:1.2,oh:2.0,m:0.2,k:16},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    o2:{ cas:"14:00–16:00", tp:126, toh:47, tm:37, tk:1034,
+      s:[{i:"Piščančje prsi",g:280,p:86.8,oh:0.0,m:10.1,k:462},{i:"Sardele konz.",g:150,p:31.5,oh:0.0,m:16.5,k:278},{i:"Sladki krompir kuhan",g:180,p:3.6,oh:36.0,m:0.2,k:155},{i:"Brokoli",g:150,p:4.2,oh:10.5,m:0.6,k:51},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    dp:249,doh:60,dm:102,dk:2152},
+  { day:"Sreda",week:2,trening:false,
+    o1:{ cas:"10:00–11:00", tp:151, toh:14, tm:37, tk:999,
+      s:[{i:"Tuna v lastnem soku (2 konz.)",g:260,p:67.6,oh:0.0,m:2.6,k:302},{i:"Jajca (3×60g)",g:180,p:23.4,oh:1.3,m:19.8,k:279},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Rukola",g:80,p:2.1,oh:3.0,m:0.6,k:20},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    o2:{ cas:"15:00–17:00", tp:114, toh:36, tm:47, tk:1019,
+      s:[{i:"Goveja pečenka",g:320,p:89.6,oh:0.0,m:22.4,k:560},{i:"Pršut",g:60,p:18.0,oh:0.0,m:9.0,k:154},{i:"Krompir kuhan",g:150,p:3.0,oh:25.5,m:0.2,k:116},{i:"Zelenjava (por, korenje)",g:200,p:3.0,oh:10.0,m:0.4,k:56},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    dp:265,doh:50,dm:84,dk:2018},
+  { day:"Četrtek",week:2,trening:true,
+    o1:{ cas:"9:30 – po treningu", tp:151, toh:22, tm:58, tk:1211,
+      s:[{i:"Brancin file",g:300,p:57.0,oh:0.0,m:12.0,k:345},{i:"Jajca (4×60g)",g:240,p:31.2,oh:1.7,m:26.4,k:372},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Brokoli",g:150,p:4.2,oh:10.5,m:0.6,k:51},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    o2:{ cas:"14:00–16:00", tp:107, toh:14, tm:44, tk:876,
+      s:[{i:"Piščančje bedre b/k",g:300,p:75.0,oh:0.0,m:24.0,k:510},{i:"Orada file",g:150,p:30.0,oh:0.0,m:4.5,k:158},{i:"Paprika",g:200,p:2.0,oh:12.0,m:0.6,k:62},{i:"Olive",g:50,p:0.4,oh:1.9,m:5.3,k:58},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    dp:258,doh:36,dm:102,dk:2087},
+  { day:"Petek",week:2,trening:true,
+    o1:{ cas:"9:30 – po treningu", tp:134, toh:14, tm:47, tk:1040,
+      s:[{i:"Postrv",g:250,p:50.0,oh:0.0,m:7.5,k:298},{i:"Jajca (3×60g)",g:180,p:23.4,oh:1.3,m:19.8,k:279},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Rukola",g:80,p:2.1,oh:3.0,m:0.6,k:20},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    o2:{ cas:"14:00–16:00", tp:108, toh:42, tm:32, tk:895,
+      s:[{i:"Piščančje prsi",g:250,p:77.5,oh:0.0,m:9.0,k:412},{i:"Pršut",g:80,p:24.0,oh:0.0,m:12.0,k:206},{i:"Sladki krompir kuhan",g:180,p:3.6,oh:36.0,m:0.2,k:155},{i:"Bučke",g:200,p:2.4,oh:6.2,m:0.6,k:34},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    dp:241,doh:57,dm:78,dk:1935},
+  { day:"Sobota",week:2,trening:false,
+    o1:{ cas:"10:00–11:00", tp:123, toh:19, tm:64, tk:1130,
+      s:[{i:"Losos svež",g:200,p:40.0,oh:0.0,m:26.0,k:380},{i:"Jajca (3×60g)",g:180,p:23.4,oh:1.3,m:19.8,k:279},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Paradižnik",g:150,p:1.4,oh:5.8,m:0.3,k:27},{i:"Olive",g:40,p:0.3,oh:1.5,m:4.3,k:46},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    o2:{ cas:"15:00–17:00", tp:109, toh:35, tm:43, tk:965,
+      s:[{i:"Goveje polpete puste (7%)",g:380,p:76.0,oh:0.0,m:26.6,k:543},{i:"Brancin file",g:150,p:28.5,oh:0.0,m:6.0,k:172},{i:"Krompir kuhan",g:150,p:3.0,oh:25.5,m:0.2,k:116},{i:"Paprika",g:150,p:1.5,oh:9.0,m:0.4,k:46},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    dp:232,doh:53,dm:107,dk:2095},
+  { day:"Nedelja",week:2,trening:false,
+    o1:{ cas:"10:00–11:00", tp:144, toh:14, tm:43, tk:1012,
+      s:[{i:"Orada file",g:300,p:60.0,oh:0.0,m:9.0,k:315},{i:"Jajca (3×60g)",g:180,p:23.4,oh:1.3,m:19.8,k:279},{i:"Grški jogurt 0%",g:200,p:20.0,oh:7.6,m:0.0,k:110},{i:"Whey (50g)",g:50,p:38.3,oh:2.5,m:3.8,k:200},{i:"Rukola",g:80,p:2.1,oh:3.0,m:0.6,k:20},{i:"Oljčno olje",g:10,p:0.0,oh:0.0,m:10.0,k:88}]},
+    o2:{ cas:"15:00–17:00", tp:109, toh:56, tm:41, tk:995,
+      s:[{i:"Goveja pečenka",g:350,p:98.0,oh:0.0,m:24.5,k:612},{i:"Sladki krompir kuhan",g:180,p:3.6,oh:36.0,m:0.2,k:155},{i:"Brokoli",g:200,p:5.6,oh:14.0,m:0.8,k:68},{i:"Paradižnik",g:150,p:1.4,oh:5.8,m:0.3,k:27},{i:"Oljčno olje",g:15,p:0.0,oh:0.0,m:15.0,k:133}]},
+    dp:252,doh:70,dm:84,dk:2007},
+];
+
+let curWeek = 1, curDay = 0;
+
+function pC(p) { return p>=200?'c-green':p>=180?'c-yellow':'c-red'; }
+function kC(k) { return k<=2200?'c-green':k<=2400?'c-yellow':'c-red'; }
+
+function switchWeek(w) {
+  curWeek = w; curDay = 0;
+  document.querySelectorAll('.week-btn').forEach((b,i)=>b.classList.toggle('active',i===w-1));
+  render();
+}
+
+function switchDay(i) { curDay = i; render(); }
+
+function toggleObrok(idx) {
+  const el = document.getElementById('obody'+idx);
+  const hint = document.getElementById('hint'+idx);
+  const open = el.classList.toggle('open');
+  hint.textContent = open ? '▲' : '▼';
+}
+
+function render() {
+  const weekDays = DAYS.filter(d=>d.week===curWeek);
+  const d = weekDays[curDay]||weekDays[0];
+
+  // Day tabs
+  document.getElementById('dayTabs').innerHTML = weekDays.map((day,i)=>{
+    const ac = curDay===i?(day.trening?'active-t':'active-r'):'';
+    return `<button class="day-btn ${ac}" onclick="switchDay(${i})">${day.day.slice(0,3)}${day.trening?' 💪':''}</button>`;
+  }).join('');
+
+  // Stats
+  document.getElementById('stats').innerHTML = [
+    ['Beljakovine',`${d.dp}g`,pC(d.dp)],
+    ['OH',`${d.doh}g`,'c-yellow'],
+    ['Maščobe',`${d.dm}g`,'c-orange'],
+    ['kcal',`${d.dk}`,kC(d.dk)],
+  ].map(([l,v,c])=>`<div class="stat"><div class="val ${c}">${v}</div><div class="lbl">${l}</div></div>`).join('');
+
+  // Trening bar
+  document.getElementById('treningBar').innerHTML = d.trening
+    ? `<div class="trening-bar">💪 Trening 7:30–9:00 · Psyllium 30min prej · 1. obrok takoj po treningu</div>`
+    : '';
+
+  // Obroka
+  [['o1',0],['o2',1]].forEach(([key,idx])=>{
+    const o = d[key];
+    const bc = idx===0?'#29b6f6':'#66bb6a';
+    const lbl = idx===0?'🍽 OBROK 1':'🍽 OBROK 2';
+    const preview = o.s.slice(0,2).map(x=>x.i).join(' + ')+(o.s.length>2?` +${o.s.length-2}`:'');
+    const rows = o.s.map(s=>`
+      <div class="srow">
+        <div><span class="name">${s.i}</span><span class="grams">${s.g}g</span></div>
+        <div class="nums"><span class="pv">${s.p}P</span> · ${s.oh}OH · ${s.m}M · <span class="kv">${s.k}</span></div>
+      </div>`).join('');
+    document.getElementById(key).innerHTML = `
+      <div class="ocard" style="border-left:4px solid ${bc}">
+        <div class="ocard-head" onclick="toggleObrok(${idx})">
+          <div class="row1">
+            <div>
+              <div class="label" style="color:${bc}">${lbl} · ${o.cas}</div>
+              <div class="preview">${preview}</div>
+            </div>
+            <div style="text-align:right;margin-left:10px;flex-shrink:0">
+              <div class="kcal">${o.tk}</div>
+              <div class="prot" style="color:#a5d6a7">${o.tp}g P</div>
+            </div>
+          </div>
+          <div class="macros">
+            <span class="mc"><span style="font-weight:bold;color:#a5d6a7">${o.tp}g</span><span style="color:#546e7a"> P</span></span>
+            <span class="mc"><span style="font-weight:bold;color:#fff9c4">${o.toh}g</span><span style="color:#546e7a"> OH</span></span>
+            <span class="mc"><span style="font-weight:bold;color:#ffcc80">${o.tm}g</span><span style="color:#546e7a"> M</span></span>
+            <span class="toggle-hint" id="hint${idx}">▼</span>
+          </div>
+        </div>
+        <div class="ocard-body" id="obody${idx}">
+          <div class="divider">${rows}</div>
+        </div>
+      </div>`;
+  });
+}
+
+render();
+</script>
+</body>
+</html>
